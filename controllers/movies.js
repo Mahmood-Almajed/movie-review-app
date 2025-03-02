@@ -19,4 +19,20 @@ router.get('/', async (req, res) => {
 
 
 
+  //===============================
+  router.use(verifyToken);
+
+router.post('/', async (req, res) => {
+    try {
+        
+      req.body.author = req.user._id;
+      const movie = await Movies.create(req.body);
+      movie._doc.author = req.user;
+      res.status(201).json(movie);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  });
+
 module.exports = router;
