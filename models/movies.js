@@ -15,7 +15,6 @@ const commentSchema = new mongoose.Schema(
     { timestamps: true }
   );
 
-  //reviews schema
 
 
 
