@@ -26,6 +26,10 @@ const  moviesSchema = new mongoose.Schema({
     type:String,
     required:true,
     },
+
+    poster:{
+        type:String
+    },
     genre:{
         type:String,
         required:true,
@@ -47,6 +51,7 @@ const  moviesSchema = new mongoose.Schema({
     
         
     },
+    
     
      author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
      reviews:[reviewsSchema],

@@ -6,9 +6,30 @@ const router = express.Router();
 // ========== Public Routes ===========
 
 
+
+
+
+//=============Protected routes==================
+router.use(verifyToken);
+
+//create
+router.post('/', async (req, res) => {
+  try {
+    
+    req.body.author = req.user._id;
+    const movie = await Movies.create(req.body);
+    movie._doc.author = req.user;
+    res.status(201).json(movie);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+//index
 router.get('/', async (req, res) => {
     try {
-      const movies = await Movie.find({})
+      const movies = await Movies.find({})
         .populate('author')
         .sort({ createdAt: 'desc' });
       res.status(200).json(movies);
@@ -17,22 +38,69 @@ router.get('/', async (req, res) => {
     }
   });
 
-
-
-  //===============================
-  router.use(verifyToken);
-
-router.post('/', async (req, res) => {
+//show
+  router.get('/:movieId', async (req, res) => {
     try {
-        
-      req.body.author = req.user._id;
-      const movie = await Movies.create(req.body);
-      movie._doc.author = req.user;
-      res.status(201).json(movie);
+      const movie = await Movies.findById(req.params.movieId).populate(['author','reviews.author']);
+      res.status(200).json(movie);
     } catch (error) {
-      console.log(error);
       res.status(500).json(error);
     }
   });
+
+
+
+  //Update movie 
+  router.put('/:movieId', async (req, res) => {
+    try {
+      const movie = await Movies.findById(req.params.movieId);
+  
+      if (!movie.author.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to Update this movie");
+      }
+  
+      const updatedMovie = await Movies.findByIdAndUpdate(
+        req.params.movieId,
+        req.body,
+        { new: true }
+      );
+  
+      updatedMovie._doc.author = req.user;
+  
+      res.status(200).json(updatedMovie);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  });
+  
+
+
+
+
+
+
+
+
+
+  //Delete Movie
+  router.delete('/:movieId', async (req, res) => {
+    try {
+      const movie = await Movies.findById(req.params.movieId);
+  
+      if (!movie.author.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to do Delete this movie");
+      }
+  
+      const deletedMovie = await Movies.findByIdAndDelete(req.params.movieId);
+      res.status(200).json(deletedMovie);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  });
+
+
+  
+
+
 
 module.exports = router;
