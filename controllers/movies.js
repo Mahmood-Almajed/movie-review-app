@@ -102,6 +102,7 @@ router.get('/', async (req, res) => {
 
 
 
+
   //reviews-Create
 
   router.post('/:movieId/reviews', async (req, res) => {
@@ -126,36 +127,15 @@ router.get('/', async (req, res) => {
 
 //reviews-Update  
 router.put('/:movieId/reviews/:reviewsID', async (req, res) => {
-    try {
-        req.body.author = req.user._id;
-      const movie = await Movies.findById(req.params.movieId);
-  
-      if (!movie.author.equals(req.user._id)) {
-        return res.status(403).send("You're not allowed to Update this review");
-      }
-  
-      const revIndex = parseInt(req.params.reviewsID);
-
-      movie.reviews[revIndex] = req.body
-
-
-     /* const updatedMovie = await Movies.findByIdAndUpdate(
-        req.params.movieId,
-        req.body,
-        { new: true }
-      );*/
-  
-      //updatedreview._doc.author = req.user;
-      movie.reviews[revIndex]._doc.author = req.user;
-      await Movies.findByIdAndUpdate(
-        req.params.movieId,
-        movie
-      )
-      res.status(200).json(movie.reviews[revIndex]);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-
+  try {
+    const movie = await Movies.findById(req.params.movieId);
+    const review = movie.reviews.id(req.params.reviewsID);
+    review.text = req.body.text;
+    await movie.save();
+    res.status(200).json({ message: 'review has been updated!' });
+  } catch (err) {
+    res.status(500).json(err);
+  }
     
   });
 
@@ -163,25 +143,13 @@ router.put('/:movieId/reviews/:reviewsID', async (req, res) => {
   //reviews-Delete
   router.delete('/:movieId/reviews/:reviewsID', async (req, res) => {
     try {
-        req.body.author = req.user._id;
+      req.body.author = req.user._id;
       const movie = await Movies.findById(req.params.movieId);
-  
-      if (!movie.author.equals(req.user._id)) {
-        return res.status(403).send("You're not allowed to Update this review");
-      }
-  
-      const revIndex = parseInt(req.params.reviewsID);
-      movie.reviews = movie.reviews.filter((review, idx) => {
-        return idx != revIndex
-      })
-      
-      await Movies.findByIdAndUpdate(
-        req.params.movieId,
-        movie
-      )
-      res.status(200).json(movie);
-    } catch (error) {
-      res.status(500).json(error);
+      movie.reviews.remove({ _id: req.params.reviewsID });
+      await movie.save();
+      res.status(200).json({ message: 'review has been deleted!' });
+    } catch (err) {
+      res.status(500).json(err);
     }
   });
 

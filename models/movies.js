@@ -8,7 +8,9 @@ const reviewsSchema = new mongoose.Schema(
       },
       rating: {
         type: Number,
-        required: true
+        required: true,
+        min:0 ,
+        max:10
       },
       author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     },
@@ -33,7 +35,7 @@ const  moviesSchema = new mongoose.Schema({
     genre:{
         type:String,
         required:true,
-        enum:['Action', 'Comedy','Darama','Horror','Sci-Fi']
+        enum:['Action', 'Comedy','Drama','Horror','Sci-Fi']
     },
     
     description:{
