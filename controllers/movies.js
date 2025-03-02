@@ -71,6 +71,8 @@ router.get('/', async (req, res) => {
     } catch (error) {
       res.status(500).json(error);
     }
+
+    
   });
   
 
@@ -99,8 +101,88 @@ router.get('/', async (req, res) => {
   });
 
 
+
+  //reviews-Create
+
+  router.post('/:movieId/reviews', async (req, res) => {
+
+    try {
+        req.body.author = req.user._id;
+        const movie = await Movies.findById(req.params.movieId);
+        movie.reviews.push(req.body);
+        await movie.save();
+    
+       
+        const newReview = movie.reviews[movie.reviews.length - 1];
+    
+        newReview._doc.author = req.user;
+    
+       
+        res.status(201).json(newReview);
+      } catch (error) {
+        res.status(500).json(error);
+      }
+});
+
+//reviews-Update  
+router.put('/:movieId/reviews/:reviewsID', async (req, res) => {
+    try {
+        req.body.author = req.user._id;
+      const movie = await Movies.findById(req.params.movieId);
   
+      if (!movie.author.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to Update this review");
+      }
+  
+      const revIndex = parseInt(req.params.reviewsID);
+
+      movie.reviews[revIndex] = req.body
 
 
+     /* const updatedMovie = await Movies.findByIdAndUpdate(
+        req.params.movieId,
+        req.body,
+        { new: true }
+      );*/
+  
+      //updatedreview._doc.author = req.user;
+      movie.reviews[revIndex]._doc.author = req.user;
+      await Movies.findByIdAndUpdate(
+        req.params.movieId,
+        movie
+      )
+      res.status(200).json(movie.reviews[revIndex]);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+
+    
+  });
+
+
+  //reviews-Delete
+  router.delete('/:movieId/reviews/:reviewsID', async (req, res) => {
+    try {
+        req.body.author = req.user._id;
+      const movie = await Movies.findById(req.params.movieId);
+  
+      if (!movie.author.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to Update this review");
+      }
+  
+      const revIndex = parseInt(req.params.reviewsID);
+      movie.reviews = movie.reviews.filter((review, idx) => {
+        return idx != revIndex
+      })
+      
+      await Movies.findByIdAndUpdate(
+        req.params.movieId,
+        movie
+      )
+      res.status(200).json(movie);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  });
 
 module.exports = router;

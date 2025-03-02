@@ -48,8 +48,6 @@ const  moviesSchema = new mongoose.Schema({
     },
     releaseDate:{
      type:Date
-    
-        
     },
     
     
