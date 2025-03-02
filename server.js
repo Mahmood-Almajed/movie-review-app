@@ -10,7 +10,7 @@ const express = require('express');
 // Auth
 const verifyToken = require('./middleware/verify-token');
 
-// Controllers1
+// Controllers
 const testJWTRouter = require('./controllers/test-jwt');
 const usersRouter = require('./controllers/users');
 const profilesRouter = require('./controllers/profiles');
