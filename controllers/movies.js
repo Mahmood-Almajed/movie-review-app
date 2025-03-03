@@ -131,6 +131,7 @@ router.put('/:movieId/reviews/:reviewsID', async (req, res) => {
     const movie = await Movies.findById(req.params.movieId);
     const review = movie.reviews.id(req.params.reviewsID);
     review.text = req.body.text;
+    review.rating=req.body.rating;
     await movie.save();
     res.status(200).json({ message: 'review has been updated!' });
   } catch (err) {
