@@ -15,6 +15,10 @@ router.use(verifyToken);
 //create
 router.post('/', async (req, res) => {
   try {
+    if (req.body.poster === "") {
+
+      req.body.poster = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png"
+  }
     
     req.body.author = req.user._id;
     const movie = await Movies.create(req.body);
